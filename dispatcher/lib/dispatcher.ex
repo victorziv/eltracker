@@ -1,18 +1,24 @@
 defmodule Dispatcher do
-  @moduledoc """
-  Documentation for `Dispatcher`.
-  """
 
-  @doc """
-  Hello world.
+  def start do
+    spawn(fn _ ->
+      connection = :rand.uniform(1000)
+      loop(connection)
+    end)
+  end
 
-  ## Examples
+  defp loop(connection) do
+    receive do
+      {:run_query, from_pid, query_def} ->
+        query_result = run_query(connection, query_def)
+        send(from_pid, {:query_result, query_result})
+    end
+    loop(connection)
+  end
 
-      iex> Dispatcher.hello()
-      :world
+  defp run_query(connection, query_def) do
+    Process.sleep(2000)
+    "Connection #{connection}: #{query_def} result"
 
-  """
-  def hello do
-    :world
   end
 end
